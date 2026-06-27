@@ -7,6 +7,7 @@
 
 // Forward declaration (comes from remoll)
 class remollGenericDetectorHit_t;
+class remollGenericDetectorSum_t;
 class mollerDigOutData;
 
 class remoll_tree {
@@ -24,6 +25,7 @@ public:
 
     // --- Data members ---
     std::vector<remollGenericDetectorHit_t>* hit = nullptr;
+    std::vector<remollGenericDetectorSum_t>* sum = nullptr;
 
 //private:
     TTree* fChain = nullptr;

@@ -21,7 +21,9 @@
 #include "remoll_tree.h"
 #include "remollDigAuxi.h"
 #include "GEMSimDigitizer.h"
-
+#include "MOLLERPMTDigitizer.h"
+#include "remollGenericDetectorHit.hh"
+#include "remollGenericDetectorSum.hh"
 
 using namespace std;
 int main(int argc, char **argv)
@@ -94,6 +96,16 @@ int main(int argc, char **argv)
   Double_t* gain_mollergem;//one gain per module
   Double_t* commonmode_array_mollergem;
   UShort_t nAPV_mollergem = 0;
+
+  //....................
+bool doPMT = false;
+TTree* T_pmt = nullptr;
+MOLLERPMTDigitizer pmtDigi;
+MOLLERPMTDigitizer::Config pmtcfg;
+
+Int_t nparam_mollerpmt_read = 0;
+const int nparam_mollerpmt = 17;
+  //...................
 
   //-----------------------------
   //  Read database
@@ -302,6 +314,32 @@ int main(int argc, char **argv)
 	  }
 	  nparam_mollergem_read++;
 	}
+
+	if(skey=="store_waveforms_mollerpmt"){
+  TString stemp = ((TObjString*)(*tokens)[1])->GetString();
+  pmtcfg.store_waveforms = (stemp.Atoi() != 0);
+  nparam_mollerpmt_read++;
+}
+
+if(skey=="gatewidth_mollerpmt"){ pmtcfg.gate_ns = ((TObjString*)(*tokens)[1])->GetString().Atof(); nparam_mollerpmt_read++; }
+if(skey=="dt_mollerpmt"){ pmtcfg.dt_ns = ((TObjString*)(*tokens)[1])->GetString().Atof(); nparam_mollerpmt_read++; }
+if(skey=="nbits_mollerpmt"){ pmtcfg.nbits = ((TObjString*)(*tokens)[1])->GetString().Atoi(); nparam_mollerpmt_read++; }
+if(skey=="vrange_mollerpmt"){ pmtcfg.v_range_volt = ((TObjString*)(*tokens)[1])->GetString().Atof(); nparam_mollerpmt_read++; }
+if(skey=="R_mollerpmt"){ pmtcfg.R_ohm = ((TObjString*)(*tokens)[1])->GetString().Atof(); nparam_mollerpmt_read++; }
+if(skey=="ped_mollerpmt"){ pmtcfg.pedestal_mean = ((TObjString*)(*tokens)[1])->GetString().Atoi(); nparam_mollerpmt_read++; }
+if(skey=="pedsigma_mollerpmt"){ pmtcfg.pedestal_sigma = ((TObjString*)(*tokens)[1])->GetString().Atof(); nparam_mollerpmt_read++; }
+if(skey=="trigoffset_mollerpmt"){ pmtcfg.t_offset_ns = ((TObjString*)(*tokens)[1])->GetString().Atof(); nparam_mollerpmt_read++; }
+if(skey=="sigmatime_mollerpmt"){ pmtcfg.sigma_time_ns = ((TObjString*)(*tokens)[1])->GetString().Atof(); nparam_mollerpmt_read++; }
+if(skey=="tau_mollerpmt"){ pmtcfg.tau_ns = ((TObjString*)(*tokens)[1])->GetString().Atof(); nparam_mollerpmt_read++; }
+if(skey=="Qpe_mollerpmt"){ pmtcfg.Qpe_C = ((TObjString*)(*tokens)[1])->GetString().Atof(); nparam_mollerpmt_read++; }
+if(skey=="nquartz_mollerpmt"){ pmtcfg.n_quartz = ((TObjString*)(*tokens)[1])->GetString().Atof(); nparam_mollerpmt_read++; }
+if(skey=="beta_mollerpmt"){ pmtcfg.beta = ((TObjString*)(*tokens)[1])->GetString().Atof(); nparam_mollerpmt_read++; }
+if(skey=="lambda_min_mollerpmt"){ pmtcfg.lambda_min_nm = ((TObjString*)(*tokens)[1])->GetString().Atof(); nparam_mollerpmt_read++; }
+if(skey=="lambda_max_mollerpmt"){ pmtcfg.lambda_max_nm = ((TObjString*)(*tokens)[1])->GetString().Atof(); nparam_mollerpmt_read++; }
+if(skey=="eps_photon_to_pe_mollerpmt"){ pmtcfg.eps_photon_to_pe = ((TObjString*)(*tokens)[1])->GetString().Atof(); nparam_mollerpmt_read++; }
+if(skey=="dEdx_mollerpmt"){ pmtcfg.dEdx_mev_per_cm = ((TObjString*)(*tokens)[1])->GetString().Atof(); nparam_mollerpmt_read++; }
+
+	
 	
       }//end if( ntokens >= 2 )
       tokens->~TObjArray();// ineffective... :(
@@ -320,7 +358,21 @@ int main(int argc, char **argv)
 	cout << detectors_list[k] <<  " does not have the right number of parameters!!! " << endl << " fix database and retry! " << endl;
 	exit(-1);
       }
+      /*
+      //.....................................
+if(detectors_list[k] == "mollerpmt") {
 
+    doPMT = true;
+
+    pmtDigi.SetConfig(pmtcfg);
+    pmtDigi.SetRandomSeed(Rseed);
+
+    cout << " mollerpmt set up! store_waveforms="
+         << pmtcfg.store_waveforms << endl;
+  }
+ 
+      //....................................
+      */
       GEMDet* mollergem = new GEMDet(0, NPlanes_mollergem, layer_mollergem, nstrips_mollergem, offset_mollergem, RO_angle_mollergem, 6, ZsupThr_mollergem);
       GEMSimDigitizer* gemdig = new GEMSimDigitizer(NPlanes_mollergem/2, triggeroffset_mollergem, gain_mollergem, ZsupThr_mollergem, nAPV_mollergem, commonmode_array_mollergem);
       for(int m = 0; m<Nlayers_mollergem; m++){
@@ -334,6 +386,17 @@ int main(int argc, char **argv)
 
       cout << " set up! " << endl;
     }
+          //.....................................                                                                                                                                       
+if(detectors_list[k] == "mollerpmt") {
+
+    doPMT = true;
+
+    pmtDigi.SetConfig(pmtcfg);
+    pmtDigi.SetRandomSeed(Rseed);
+
+    cout << " mollerpmt set up! store_waveforms="
+         << pmtcfg.store_waveforms << endl;
+ }
   }
   
   TRandom3* R = new TRandom3(Rseed);
@@ -378,7 +441,14 @@ int main(int argc, char **argv)
     outname.ReplaceAll(".root", "_dig.root");
     TFile f_out(outname, "RECREATE");
     TTree *T_out = new TTree("T", "Digitized GEM output");
-
+    //...................
+    TTree *T_pmt = nullptr;
+    if(doPMT) {
+  cout << "Creating PMT output tree" << endl;
+  T_pmt = new TTree("pmt_digi", "Digitized PMT/FADC output");
+  pmtDigi.BookBranches(T_pmt);
+}
+    //..................
 
     remoll_tree *T_s = new remoll_tree();
     T_s->Init(C_s);
@@ -414,6 +484,43 @@ int main(int argc, char **argv)
 	 GEMSimDig[k]->CheckOut(GEMdetectors[k],gemdetmap[k], R, T_s);
 	}
       }
+
+      //...............................//
+std::vector<int> hit_det_vec;
+std::vector<double> hit_t_vec;
+std::vector<double> hit_x_vec;
+std::vector<double> hit_y_vec;
+std::vector<double> hit_z_vec;
+std::vector<double> hit_edep_vec;
+
+if(T_s->hit) {
+  for(size_t ih = 0; ih < T_s->hit->size(); ih++) {
+    const remollGenericDetectorHit_t& h = T_s->hit->at(ih);
+
+    hit_det_vec.push_back(h.det);
+    hit_t_vec.push_back(h.t);
+    hit_x_vec.push_back(h.x);
+    hit_y_vec.push_back(h.y);
+    hit_z_vec.push_back(h.z);
+    hit_edep_vec.push_back(h.edep);
+  }
+}
+
+std::vector<int> sum_det_vec;
+std::vector<double> sum_edep_vec;
+bool has_sum = false;
+
+if(T_s->sum) {
+  has_sum = true;
+
+  for(size_t is = 0; is < T_s->sum->size(); is++) {
+    const remollGenericDetectorSum_t& s = T_s->sum->at(is);
+
+    sum_det_vec.push_back(s.det);
+    sum_edep_vec.push_back(s.edep);
+  }
+}
+      //.................................//
 /*
       for (int detID : auxi.GetActiveDetectors()) {
 
@@ -430,6 +537,26 @@ int main(int argc, char **argv)
                         << std::endl;
           }
 	}*/
+
+//.........................//
+if(doPMT && T_pmt) {
+  pmtDigi.SetEventNumber(NEventsTotal);
+
+  pmtDigi.DigitizeEvent(
+      hit_det_vec,
+      hit_t_vec,
+      hit_x_vec,
+      hit_y_vec,
+      hit_z_vec,
+      hit_edep_vec,
+      sum_det_vec,
+      sum_edep_vec,
+      has_sum
+  );
+
+  T_pmt->Fill();
+}
+//.........................// 
       T_s->FillDigBranches();
       T_out->Fill();
       }
@@ -440,6 +567,13 @@ int main(int argc, char **argv)
       GEMSimDig[k]->print_time_execution();
     }    
 */
+    //.............//
+if(T_pmt) {
+    cout << "Writing PMT tree with entries = "
+       << T_pmt->GetEntries() << endl;
+  T_pmt->Write();
+}
+    //............//
     f_out.cd();
     T_out->Write();
     f_out.Close();

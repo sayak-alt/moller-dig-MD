@@ -3,6 +3,7 @@
 
 // IMPORTANT: include remoll class
 #include "remollGenericDetectorHit.hh"
+#include "remollGenericDetectorSum.hh"
 //#include "mollerDigOutData.h"
 
 void remoll_tree::Init(TTree* tree) {
@@ -14,7 +15,8 @@ void remoll_tree::Init(TTree* tree) {
     fChain = tree;
 
     // Bind the full object branch
-    fChain->SetBranchAddress("hit", &hit);
+    fChain->SetBranchAddress("hit", &hit); 
+    fChain->SetBranchAddress("sum", &sum);
 
     std::cout << "Initialized tree with "
               << fChain->GetEntries() << " entries\n";

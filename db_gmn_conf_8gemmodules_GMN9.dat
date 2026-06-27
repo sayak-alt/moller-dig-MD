@@ -4,7 +4,30 @@ Rseed 0
 TriggerJitter 3.0 
 #list of detectors to digitize
 #detectors_list hcal bbps bbsh grinch bbhodo mollergem 
-detectors_list mollergem 
+#detectors_list mollergem mollerpmt
+ detectors_list mollerpmt
+
+store_waveforms_mollerpmt 1
+
+gatewidth_mollerpmt 400
+dt_mollerpmt 4.0
+nbits_mollerpmt 12
+vrange_mollerpmt 1.0
+R_mollerpmt 50.0
+
+ped_mollerpmt 300
+pedsigma_mollerpmt 5.0
+trigoffset_mollerpmt 30.0
+sigmatime_mollerpmt 1.0
+tau_mollerpmt 10.0
+Qpe_mollerpmt 1.6e-13
+
+nquartz_mollerpmt 1.47
+beta_mollerpmt 1.0
+lambda_min_mollerpmt 200
+lambda_max_mollerpmt 600
+eps_photon_to_pe_mollerpmt 0.03
+dEdx_mollerpmt 4.0
 
 # ## parameters for grinch
 # NChan_grinch 510 

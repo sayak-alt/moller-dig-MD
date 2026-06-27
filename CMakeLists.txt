@@ -51,6 +51,7 @@ set(SOURCES
     src/GEMPlane.cxx
     src/GEMDet.cxx
     src/GEMSimDigitizer.cxx
+    src/MOLLERPMTDigitizer.cxx
 )
 
 add_executable(mollerdig ${SOURCES})
