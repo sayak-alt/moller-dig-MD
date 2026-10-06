@@ -1,0 +1,90 @@
+# PE response: 0 = existing Frank-Tamm, 1 = lookup tables
+pe_method_mollerpmt 0
+lut_directory_mollerpmt look_up_table
+lut_ring_mollerpmt 0
+
+#Random seed
+Rseed 0
+#global trigger jitter for all detectors in ns
+TriggerJitter 3.0 
+#list of detectors to digitize
+#detectors_list hcal bbps bbsh grinch bbhodo mollergem 
+#detectors_list mollergem mollerpmt
+ detectors_list mollerpmt
+
+store_waveforms_mollerpmt 1
+
+gatewidth_mollerpmt 400
+dt_mollerpmt 4.0
+nbits_mollerpmt 12
+vrange_mollerpmt 1.0
+R_mollerpmt 50.0
+
+ped_mollerpmt 300
+pedsigma_mollerpmt 5.0
+trigoffset_mollerpmt 30.0
+sigmatime_mollerpmt 1.0
+tau_mollerpmt 10.0
+Qpe_mollerpmt 1.6e-13
+
+nquartz_mollerpmt 1.47
+beta_mollerpmt 1.0
+lambda_min_mollerpmt 200
+lambda_max_mollerpmt 600
+eps_photon_to_pe_mollerpmt 0.03
+dEdx_mollerpmt 4.0
+
+# ## parameters for grinch
+# NChan_grinch 510 
+# gatewidth_grinch 100 
+# gain_grinch 7.0e6
+# ped_grinch 500.0 
+# pedsigma_grinch 3.0
+# trigoffset_grinch 15.3 
+# threshold_grinch 3.e-3 
+# ADCconv_grinch 100 
+# #ADCbits_grinch 12 
+# TDCconv_grinch 1.0 
+# TDCbits_grinch 16 
+# sigmapulse_grinch 3.75 
+# 
+# ## parameters for bbhodo
+# NChan_bbhodo 180 
+# gatewidth_bbhodo 100 
+# gain_bbhodo 1.0e5
+# ped_bbhodo 500.0 
+# pedsigma_bbhodo 3.0
+# trigoffset_bbhodo 18.6 
+# threshold_bbhodo 3.e-3 
+# ADCconv_bbhodo 100 
+# #ADCbits_bbhodo 12 
+# TDCconv_bbhodo 0.1 
+# TDCbits_bbhodo 19 
+# sigmapulse_bbhodo 1.6 
+
+## parameters for GEMs
+# number of planes/modules/readout
+NPlanes_mollergem 56 
+# data acquisition window for mollergem in ns
+gatewidth_mollergem 400 
+nlayers_mollergem 4
+#mollergem_layer_z 0.85 1.0 1.15 1.30 2.33223544
+#mollergem_layer_z 0.0468175 0.1968175 0.3468175 0.4968175 1.5550219
+mollergem_layer_z 0.0 0.137 0.274 0.411
+#1.52905294 
+#number of strips for each plane/module
+layer_mollergem 1 1 1 1 1 1 1 1 1 1 1 1 1 1 2 2 2 2 2 2 2 2 2 2 2 2 2 2 3 3 3 3 3 3 3 3 3 3 3 3 3 3 4 4 4 4 4 4 4 4 4 4 4 4 4 4
+nstrips_mollergem 605 605 605 605 605 605 605 605 605 605 605 605 605 605 605 605 605 605 605 605 605 605 605 605 605 605 605 605 605 605 605 605 605 605 605 605 605 605 605 605 605 605 605 605 605 605 605 605 605 605 605 605 605 605 605 605 
+#offset in transport coordinate for each plane/module in meters
+offset_mollergem 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 
+#strip angle for all BB GEM readouts in degrees
+RO_angle_mollergem -30.0 30.0 -30.0 30.0 -30.0 30.0 -30.0 30.0 -30.0 30.0 -30.0 30.0 -30.0 30.0 -30.0 30.0 -30.0 30.0 -30.0 30.0 -30.0 30.0 -30.0 30.0 -30.0 30.0 -30.0 30.0 -30.0 30.0 -30.0 30.0 -30.0 30.0 -30.0 30.0 -30.0 30.0 -30.0 30.0 -30.0 30.0 -30.0 30.0 -30.0 30.0 -30.0 30.0 -30.0 30.0 -30.0 30.0 -30.0 30.0 -30.0 30.0 
+#trigger offsets for all planes in ns
+triggeroffset_mollergem 120.8 121.28 121.74 122.2 120.8 121.28 121.74 122.2 120.8 121.28 121.74 122.2 120.8 121.28 121.74 122.2 120.8 121.28 121.74 122.2 120.8 121.28 121.74 122.2 120.8 121.28 121.74 122.2 
+gain_mollergem 20.
+#zero suppression threshold for GEMs in ADC channels
+ZsupThr_mollergem 240.
+#common mode value/array for GEMs in ADC channels
+commonmode_array_mollergem 1500.
+
+endconfig
