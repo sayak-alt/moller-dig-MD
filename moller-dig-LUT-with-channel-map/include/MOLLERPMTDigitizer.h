@@ -1,0 +1,113 @@
+#ifndef MOLLER_PMT_DIGITIZER_H
+#define MOLLER_PMT_DIGITIZER_H
+
+#include <TTree.h>
+#include <TRandom3.h>
+
+#include "MOLLERLookupResponse.h"
+#include <string>
+#include <vector>
+#include <unordered_map>
+
+class MOLLERPMTDigitizer {
+public:
+  struct Config {
+    double R_ohm = 50.0;
+    double dt_ns = 4.0;
+    int nbits = 12;
+    double v_range_volt = 1.0;
+
+    int pedestal_mean = 300;
+    double pedestal_sigma = 5.0;
+
+    double tau_ns = 10.0;
+    double sigma_time_ns = 1.0;
+
+    double gate_ns = 400.0;
+    double t_offset_ns = 30.0;
+
+    double Qpe_C = 1.6e-13;
+
+    double n_quartz = 1.47;
+    double beta = 1.0;
+    double lambda_min_nm = 200.0;
+    double lambda_max_nm = 600.0;
+    double eps_photon_to_pe = 0.03;
+    double dEdx_mev_per_cm = 4.0;
+
+    bool store_waveforms = false;
+    std::string detector_map_file; // Optional CSV electronics map
+    int pe_method = 0; // 0: existing Frank-Tamm; 1: LUT
+    std::string lut_directory = "look_up_table";
+    int lut_ring = 0; // 0: all six rings
+  };
+
+  MOLLERPMTDigitizer();
+
+  void SetConfig(const Config& cfg);
+  void SetRandomSeed(unsigned int seed);
+  void SetEventNumber(int iev);
+
+  void BookBranches(TTree* tree);
+  void Clear();
+
+  void DigitizeEvent(const std::vector<int>& hit_det,
+                     const std::vector<double>& hit_t,
+                     const std::vector<double>& hit_x,
+                     const std::vector<double>& hit_y,
+                     const std::vector<double>& hit_z,
+                     const std::vector<double>& hit_edep,
+                     const std::vector<int>& sum_det,
+                     const std::vector<double>& sum_edep,
+                     bool has_sum);
+
+  void DigitizeEventLUT(const std::vector<MOLLERLookupResponse::Hit>& hits,
+                        const std::vector<int>& sum_det,
+                        const std::vector<double>& sum_edep, bool has_sum);
+
+private:
+  MOLLERLookupResponse fLookup;
+  void DigitizePrepared(const std::unordered_map<int,double>& energy,
+                        const std::unordered_map<int,double>& times,
+                        const std::unordered_map<int,double>* lut_means = nullptr);
+  struct ChannelInfo {
+    int segment, ring, rocid, slot, channel;
+    std::string segment_group, orientation, subdivision;
+    bool enabled;
+  };
+  void LoadDetectorMap(const std::string& filename);
+  void AppendMapping(int did);
+  std::unordered_map<int,ChannelInfo> fDetectorMap;
+  std::vector<int> rocid, slot, channel, segment, ring, mapping_valid, channel_enabled;
+  std::vector<std::string> segment_group, orientation, subdivision;
+  std::vector<int> wf_rocid, wf_slot, wf_channel, wf_mapping_valid;
+  Config fCfg;
+  TRandom3 fRand;
+  int fEvnum = 0;
+
+  std::vector<int> detid;
+  std::vector<double> edep_mev;
+  std::vector<double> leff_cm;
+  std::vector<double> meanpe;
+  std::vector<int> npe_poiss;
+
+  std::vector<int> adc_int;
+  std::vector<int> adc_int_pedsub;
+
+  std::vector<int> hit_detid;
+  std::vector<double> hit_time;
+
+  std::vector<int> t0_detid;
+  std::vector<double> t0_time;
+
+  // Optional waveform output
+  std::vector<int> wf_detid;
+  std::vector<int> wf_samp;
+  std::vector<unsigned short> wf_adc;
+
+  double FrankTammPhotonsPerCm() const;
+  double QLSB() const;
+  double ChargeInSampleFromOnePE(double t0_ns, double t1_ns, double t2_ns) const;
+};
+
+#endif
